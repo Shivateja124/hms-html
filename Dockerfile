@@ -1,17 +1,18 @@
-# Use a minimal Alpine image
-FROM alpine:latest
+# Use the official Nginx image as the base image
+FROM nginx:alpine
 
-# Create a directory to hold the HTML files
-WORKDIR /usr/share/html
+# Set environment variable for Nginx HTML directory
+ENV APP_DIR=/usr/share/nginx/html
 
-# Copy your HTML files into the container
-COPY . .
+# Install Git, clone the repository, and copy files to the Nginx HTML directory
+RUN apk add --no-cache git && \
+    git clone https://github.com/Shivateja124/hms-html.git /temp && \
+    cp -r /temp/* $APP_DIR && \
+    rm -rf /temp
 
-# Install a lightweight web server (like BusyBox's httpd)
-RUN apk add --no-cache busybox-extras
-
-# Expose port 80
+# Expose port 80 for the Nginx web server
 EXPOSE 80
 
-# Start the HTTP server
-CMD ["httpd", "-f", "-p", "80", "-h", "/usr/share/html"]
+# Start the Nginx server
+CMD ["nginx", "-g", "daemon off;"]
+
