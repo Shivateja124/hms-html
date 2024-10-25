@@ -1,18 +1,17 @@
-# Use an official Nginx image as the base image
-FROM nginx:alpine
+# Use a minimal Alpine image
+FROM alpine:latest
 
-# Set up environment variables
-ENV APP_DIR /usr/share/nginx/html
+# Create a directory to hold the HTML files
+WORKDIR /usr/share/html
 
-# Copy HTML files from the GitHub repository to the Nginx directory
-# Clone the GitHub repository containing the HTML files
-RUN apk add --no-cache git && \
-    git clone https://github.com/your-username/your-repository.git /temp && \
-    cp -r /temp/* $APP_DIR && \
-    rm -rf /temp
+# Copy your HTML files into the container
+COPY . .
+
+# Install a lightweight web server (like BusyBox's httpd)
+RUN apk add --no-cache busybox-extras
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Start the HTTP server
+CMD ["httpd", "-f", "-p", "80", "-h", "/usr/share/html"]
